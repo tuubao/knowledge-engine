@@ -1,0 +1,10 @@
+# Python 3.13.8 CPU 模型环境；CUDA 轮子应从 PyTorch 官方索引单独选择并记录。
+FlagEmbedding==1.4.2
+sentence-transformers==6.0.0
+transformers==5.15.1
+torch==2.13.0
+numpy==2.5.2
+scipy==1.18.1
+# 可选 PDF 图片存储、MCP 网搜；不开启时不会初始化客户端。
+minio==7.2.20
+mcp==2.1.0

@@ -1,0 +1,17 @@
+.git
+.venv
+.idea
+.env
+**/node_modules
+**/target
+**/__pycache__
+**/*.pyc
+temp_data
+volumes
+runtime
+evaluation/reports
+**/dist
+models
+.cache
+**/.m2
+**/.npm-cache

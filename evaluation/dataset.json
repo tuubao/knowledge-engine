@@ -1,0 +1,36 @@
+{
+  "version": "demo-2026-10-31-v1",
+  "source": "项目自编演示语料；小样本回归数据，不代表生产效果",
+  "knowledge_base_id": "evaluation-public",
+  "index_version": "v1",
+  "documents": [
+    {"document_id":"manual-ke100","path":"samples/manual-ke100.md"},
+    {"document_id":"operations","path":"samples/operations.md"},
+    {"document_id":"access-policy","path":"samples/access-policy.md"},
+    {"document_id":"evaluation","path":"samples/evaluation.md"}
+  ],
+  "questions": [
+    {"id":"q01","split":"dev","query":"KE-100 初次开机要等多久，哪个灯表示完成？","relevant_document_ids":["manual-ke100"],"reference_answer":"自检约45秒，蓝色常亮表示启动完成。"},
+    {"id":"q02","split":"dev","query":"KE-100 如何只恢复网络而保留知识文档？","relevant_document_ids":["manual-ke100"],"reference_answer":"持续按住Reset 5秒后松开。"},
+    {"id":"q03","split":"dev","query":"离线升级包是什么后缀，升级前要核对什么？","relevant_document_ids":["manual-ke100"],"reference_answer":".kepkg；导出配置并核对SHA-256摘要。"},
+    {"id":"q04","split":"holdout","query":"网关红灯闪烁是什么原因？","relevant_document_ids":["manual-ke100"],"reference_answer":"存储空间不足，清理失效版本并查看告警。"},
+    {"id":"q05","split":"holdout","query":"KE-100 推荐温度范围和保修期是多少？","relevant_document_ids":["manual-ke100"],"reference_answer":"5–35摄氏度；自验收日起18个月。"},
+    {"id":"q06","split":"dev","query":"存活检查成功能否证明向量库和模型都可用？","relevant_document_ids":["operations"],"reference_answer":"不能；就绪检查还应检查必需依赖。"},
+    {"id":"q07","split":"dev","query":"怎样关联 Java 和 Python 的慢请求日志？","relevant_document_ids":["operations"],"reference_answer":"使用同一request_id，检查各阶段耗时。"},
+    {"id":"q08","split":"dev","query":"演示环境备份几点进行、保留几份？","relevant_document_ids":["operations"],"reference_answer":"每天凌晨两点，保留最近七份。"},
+    {"id":"q09","split":"holdout","query":"更换 embedding 模型后为何要重建索引？","relevant_document_ids":["operations"],"reference_answer":"新旧模型向量空间不兼容。"},
+    {"id":"q10","split":"holdout","query":"磁盘达到什么使用率要暂停导入？","relevant_document_ids":["operations"],"reference_answer":"90%暂停导入，80%预警。"},
+    {"id":"q11","split":"dev","query":"前端传 owner_id 可以获得别人的知识库吗？","relevant_document_ids":["access-policy"],"reference_answer":"不能，Java依据当前用户校验归属。"},
+    {"id":"q12","split":"dev","query":"allowed_documents 为空能否检索全部知识库？","relevant_document_ids":["access-policy"],"reference_answer":"不能，空列表表示没有授权文档。"},
+    {"id":"q13","split":"dev","query":"重复上传同一内容如何避免重复片段？","relevant_document_ids":["access-policy"],"reference_answer":"摘要复用文档，按文档、版本、序号生成稳定片段ID。"},
+    {"id":"q14","split":"holdout","query":"文档删除失败后处于什么状态，能重试吗？","relevant_document_ids":["access-policy"],"reference_answer":"DELETE_FAILED，可重试；进入删除时即排除检索。"},
+    {"id":"q15","split":"holdout","query":"对话的 done 应该在什么时候发出？","relevant_document_ids":["access-policy"],"reference_answer":"最终消息及引用成功落库后发送。"},
+    {"id":"q16","split":"dev","query":"初始评测集的 Recall 是按文档还是片段标注？","relevant_document_ids":["evaluation"],"reference_answer":"按文档标注，计算前K个片段命中文档比例。"},
+    {"id":"q17","split":"dev","query":"第一个相关结果在第二名时 MRR 的该题分数是多少？","relevant_document_ids":["evaluation"],"reference_answer":"0.5。"},
+    {"id":"q18","split":"dev","query":"做检索消融实验时哪些条件要保持一致？","relevant_document_ids":["evaluation"],"reference_answer":"语料、问题、索引及候选预算。"},
+    {"id":"q19","split":"holdout","query":"开发集和保留验证集应如何使用？","relevant_document_ids":["evaluation"],"reference_answer":"开发集调参，配置固定后运行保留验证集。"},
+    {"id":"q20","split":"holdout","query":"无答案问题应纳入召回率分母吗？","relevant_document_ids":["evaluation"],"reference_answer":"不纳入，单独检查拒答。"},
+    {"id":"q21","split":"holdout","query":"KE-100 的采购价格是多少？","relevant_document_ids":[],"reference_answer":"资料未提供采购价格。"},
+    {"id":"q22","split":"holdout","query":"知识网关支持哪种卫星通信协议？","relevant_document_ids":[],"reference_answer":"资料未提供卫星通信协议。"}
+  ]
+}

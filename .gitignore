@@ -6,3 +6,14 @@ __pycache__/
 temp_data/
 volumes/
 processor/import_processor/output_dir/
+models/
+runtime/
+.cache/
+**/.m2/
+**/.npm-cache/
+**/node_modules/
+**/target/
+**/dist/
+java-service/data/
+evaluation/reports/
+*.log

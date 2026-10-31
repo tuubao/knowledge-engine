@@ -1,18 +1,2 @@
-minio
-langchain-openai
-langchain-text-splitters
-langgraph
-grandalf
-pymilvus[model]
-pymilvus
-FlagEmbedding>=1.3.3
-sentence-transformers
-pymongo
-fastapi
-uvicorn
-python-dotenv
-pydantic
-python-multipart
-requests
-torch
-openai-agents
+# Windows x64 / Python 3.13 的完整依赖锁；Linux CPU 容器使用 requirements-linux-cpu.lock.txt。
+-r requirements.lock.txt

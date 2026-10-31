@@ -1,0 +1,162 @@
+{
+  "$defs": {
+    "Evidence": {
+      "additionalProperties": false,
+      "properties": {
+        "chunk_id": {
+          "title": "Chunk Id",
+          "type": "string"
+        },
+        "document_id": {
+          "title": "Document Id",
+          "type": "string"
+        },
+        "knowledge_base_id": {
+          "title": "Knowledge Base Id",
+          "type": "string"
+        },
+        "index_version": {
+          "title": "Index Version",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "content": {
+          "title": "Content",
+          "type": "string"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page"
+        },
+        "channel_ranks": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Channel Ranks",
+          "type": "object"
+        },
+        "fusion_score": {
+          "default": 0,
+          "title": "Fusion Score",
+          "type": "number"
+        },
+        "rerank_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rerank Score"
+        },
+        "selected": {
+          "default": false,
+          "title": "Selected",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "chunk_id",
+        "document_id",
+        "knowledge_base_id",
+        "index_version",
+        "title",
+        "content",
+        "source"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "Trace": {
+      "additionalProperties": false,
+      "properties": {
+        "durations_ms": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Durations Ms",
+          "type": "object"
+        },
+        "degraded": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Degraded",
+          "type": "array"
+        },
+        "config": {
+          "additionalProperties": true,
+          "title": "Config",
+          "type": "object"
+        },
+        "prompt_version": {
+          "default": "v1",
+          "title": "Prompt Version",
+          "type": "string"
+        }
+      },
+      "title": "Trace",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    },
+    "citations": {
+      "items": {
+        "$ref": "#/$defs/Evidence"
+      },
+      "title": "Citations",
+      "type": "array"
+    },
+    "candidates": {
+      "items": {
+        "$ref": "#/$defs/Evidence"
+      },
+      "title": "Candidates",
+      "type": "array"
+    },
+    "trace": {
+      "$ref": "#/$defs/Trace"
+    },
+    "rewritten_query": {
+      "title": "Rewritten Query",
+      "type": "string"
+    },
+    "answer": {
+      "title": "Answer",
+      "type": "string"
+    }
+  },
+  "required": [
+    "request_id",
+    "citations",
+    "candidates",
+    "trace",
+    "rewritten_query",
+    "answer"
+  ],
+  "title": "AnswerResponse",
+  "type": "object"
+}

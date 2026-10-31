@@ -1,0 +1,151 @@
+{
+  "$defs": {
+    "DocumentVersion": {
+      "additionalProperties": false,
+      "properties": {
+        "document_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Document Id",
+          "type": "string"
+        },
+        "index_version": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Index Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "document_id",
+        "index_version"
+      ],
+      "title": "DocumentVersion",
+      "type": "object"
+    },
+    "HistoryMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "role": {
+          "enum": [
+            "user",
+            "assistant"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "content": {
+          "maxLength": 16000,
+          "title": "Content",
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "content"
+      ],
+      "title": "HistoryMessage",
+      "type": "object"
+    },
+    "RetrievalOptions": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "default": "hybrid",
+          "enum": [
+            "dense",
+            "sparse",
+            "hybrid"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "top_k": {
+          "default": 5,
+          "maximum": 20,
+          "minimum": 1,
+          "title": "Top K",
+          "type": "integer"
+        },
+        "candidate_k": {
+          "default": 20,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Candidate K",
+          "type": "integer"
+        },
+        "use_rerank": {
+          "default": true,
+          "title": "Use Rerank",
+          "type": "boolean"
+        },
+        "use_hyde": {
+          "default": false,
+          "title": "Use Hyde",
+          "type": "boolean"
+        },
+        "use_web": {
+          "default": false,
+          "title": "Use Web",
+          "type": "boolean"
+        }
+      },
+      "title": "RetrievalOptions",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "knowledge_base_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Knowledge Base Id",
+      "type": "string"
+    },
+    "query": {
+      "maxLength": 4000,
+      "minLength": 1,
+      "title": "Query",
+      "type": "string"
+    },
+    "history": {
+      "items": {
+        "$ref": "#/$defs/HistoryMessage"
+      },
+      "maxItems": 40,
+      "title": "History",
+      "type": "array"
+    },
+    "allowed_documents": {
+      "items": {
+        "$ref": "#/$defs/DocumentVersion"
+      },
+      "maxItems": 1000,
+      "title": "Allowed Documents",
+      "type": "array"
+    },
+    "retrieval": {
+      "$ref": "#/$defs/RetrievalOptions"
+    },
+    "request_id": {
+      "anyOf": [
+        {
+          "maxLength": 128,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Request Id"
+    }
+  },
+  "required": [
+    "knowledge_base_id",
+    "query",
+    "allowed_documents"
+  ],
+  "title": "QueryRequest",
+  "type": "object"
+}

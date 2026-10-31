@@ -1,0 +1,122 @@
+name: knowledge-engine-dual
+
+# 新编排使用独立命名卷；不改动旧 compose 和旧 Mongo/Milvus 数据。
+services:
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.25
+    environment:
+      ETCD_AUTO_COMPACTION_MODE: revision
+      ETCD_AUTO_COMPACTION_RETENTION: '1000'
+      ETCD_QUOTA_BACKEND_BYTES: '4294967296'
+    command: etcd -advertise-client-urls=http://etcd:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    volumes: [etcd-data:/etcd]
+    healthcheck:
+      test: [CMD, etcdctl, endpoint, health]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:RELEASE.2024-12-18T13-15-44Z
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
+    command: server /data --console-address ':9001'
+    volumes: [minio-data:/data]
+    ports: ['127.0.0.1:9000:9000', '127.0.0.1:9001:9001']
+    healthcheck:
+      test: [CMD, curl, -f, http://localhost:9000/minio/health/live]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  milvus:
+    image: milvusdb/milvus:v2.5.27
+    command: [milvus, run, standalone]
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+      MINIO_ACCESS_KEY_ID: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_ACCESS_KEY: ${MINIO_SECRET_KEY:-minioadmin}
+    volumes: [milvus-data:/var/lib/milvus]
+    ports: ['127.0.0.1:19530:19530']
+    depends_on:
+      etcd: {condition: service_healthy}
+      minio: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, curl, -f, http://localhost:9091/healthz]
+      interval: 10s
+      timeout: 5s
+      start_period: 90s
+      retries: 10
+    restart: unless-stopped
+
+  rag-engine:
+    build: {context: ., dockerfile: deploy/Dockerfile.engine}
+    environment:
+      RAG_SERVICE_KEY: ${RAG_SERVICE_KEY:?请先生成并配置内部服务密钥}
+      MILVUS_URI: http://milvus:19530
+      RAG_COLLECTION: knowledge_chunks_v2
+      BGE_M3_PATH: /models/bge-m3
+      BGE_RERANKER_LARGE: /models/bge-reranker-large
+      BGE_DEVICE: cpu
+      BGE_FP16: 'false'
+      RAG_DOMAIN_MODE: ${RAG_DOMAIN_MODE:-general}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-${OPEN_API_KEY:-}}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-${OPEN_API_BASE:-}}
+      LLM_MODEL: ${LLM_MODEL:-${LLM_DEFAULT_MODEL:-}}
+      MINERU_API_TOKEN: ${MINERU_API_TOKEN:-}
+      MINERU_BASE_URL: ${MINERU_BASE_URL:-https://mineru.net/api/v4}
+      RAG_ENABLE_MINIO: 'true'
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
+      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME:-knowledge-engine}
+      RAG_ENABLE_VLM: ${RAG_ENABLE_VLM:-false}
+      VL_MODEL: ${VL_MODEL:-}
+      RAG_ENABLE_WEB: ${RAG_ENABLE_WEB:-false}
+      MCP_DASHSCOPE_BASE_URL: ${MCP_DASHSCOPE_BASE_URL:-}
+    volumes:
+      - type: bind
+        source: ${BGE_M3_PATH:?请填写真实BGE-M3模型目录}
+        target: /models/bge-m3
+        read_only: true
+      - type: bind
+        source: ${BGE_RERANKER_LARGE:?请填写重排序模型目录}
+        target: /models/bge-reranker-large
+        read_only: true
+    ports: ['127.0.0.1:8000:8000']
+    depends_on:
+      milvus: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/live')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  java-service:
+    build: {context: ., dockerfile: deploy/Dockerfile.java}
+    environment:
+      RAG_ENGINE_URL: http://rag-engine:8000
+      RAG_SERVICE_KEY: ${RAG_SERVICE_KEY:?请先配置内部服务密钥}
+      JAVA_UPLOAD_DIR: /app/data/uploads
+    volumes: [business-data:/app/data]
+    ports: ['127.0.0.1:8080:8080']
+    depends_on:
+      rag-engine: {condition: service_healthy}
+    restart: unless-stopped
+
+  frontend:
+    build: {context: ., dockerfile: deploy/Dockerfile.frontend}
+    ports: ['127.0.0.1:8088:80']
+    depends_on: [java-service]
+    restart: unless-stopped
+
+volumes:
+  etcd-data:
+  minio-data:
+  milvus-data:
+  business-data:

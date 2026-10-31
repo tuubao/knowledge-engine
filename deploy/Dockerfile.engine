@@ -1,0 +1,10 @@
+FROM python:3.13.8-slim
+WORKDIR /app
+ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 BGE_DEVICE=cpu BGE_FP16=false
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 && rm -rf /var/lib/apt/lists/*
+COPY requirements-linux-cpu.lock.txt ./
+# 平台专用锁固定 CPU PyTorch 与传递依赖；GPU 应单独解析并验证。
+RUN pip install --no-cache-dir -r requirements-linux-cpu.lock.txt
+COPY rag_engine ./rag_engine
+EXPOSE 8000
+CMD ["python", "-m", "uvicorn", "rag_engine.app:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

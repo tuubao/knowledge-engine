@@ -1,0 +1,35 @@
+CREATE TABLE IF NOT EXISTS app_users (
+  id VARCHAR(64) PRIMARY KEY, username VARCHAR(64) NOT NULL UNIQUE,
+  password_hash VARCHAR(100) NOT NULL, created_at VARCHAR(40) NOT NULL
+);
+CREATE TABLE IF NOT EXISTS auth_tokens (
+  id VARCHAR(64) PRIMARY KEY, user_id VARCHAR(64) NOT NULL,
+  expires_at VARCHAR(40) NOT NULL
+);
+CREATE TABLE IF NOT EXISTS knowledge_bases (
+  id VARCHAR(64) PRIMARY KEY, owner_id VARCHAR(64) NOT NULL, name VARCHAR(100) NOT NULL,
+  description VARCHAR(2000) NOT NULL, deleted BOOLEAN NOT NULL DEFAULT FALSE, created_at VARCHAR(40) NOT NULL
+);
+CREATE TABLE IF NOT EXISTS documents (
+  id VARCHAR(64) PRIMARY KEY, owner_id VARCHAR(64) NOT NULL, knowledge_base_id VARCHAR(64) NOT NULL,
+  filename VARCHAR(255) NOT NULL, sha256 VARCHAR(64) NOT NULL,
+  status VARCHAR(24) NOT NULL, error_message VARCHAR(2000), index_version VARCHAR(64) NOT NULL,
+  chunk_count INTEGER NOT NULL DEFAULT 0, storage_path VARCHAR(1000) NOT NULL,
+  job_id VARCHAR(64), created_at VARCHAR(40) NOT NULL,
+  CONSTRAINT uq_document_digest UNIQUE (knowledge_base_id, sha256)
+);
+CREATE TABLE IF NOT EXISTS ingestion_jobs (
+  id VARCHAR(64) PRIMARY KEY, document_id VARCHAR(64) NOT NULL, owner_id VARCHAR(64) NOT NULL,
+  action VARCHAR(16) NOT NULL, status VARCHAR(24) NOT NULL, error_message VARCHAR(2000),
+  created_at VARCHAR(40) NOT NULL, updated_at VARCHAR(40) NOT NULL
+);
+CREATE TABLE IF NOT EXISTS chat_sessions (
+  id VARCHAR(64) PRIMARY KEY, owner_id VARCHAR(64) NOT NULL, knowledge_base_id VARCHAR(64) NOT NULL,
+  title VARCHAR(200) NOT NULL, created_at VARCHAR(40) NOT NULL
+);
+CREATE TABLE IF NOT EXISTS chat_messages (
+  id VARCHAR(64) PRIMARY KEY, session_id VARCHAR(64) NOT NULL, role VARCHAR(20) NOT NULL,
+  content LONGTEXT NOT NULL, status VARCHAR(24) NOT NULL,
+  citations_json LONGTEXT, trace_json LONGTEXT, request_id VARCHAR(128) NOT NULL,
+  created_at VARCHAR(40) NOT NULL, sequence_no BIGINT NOT NULL
+);
